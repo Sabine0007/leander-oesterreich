@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Leanders Österreich-Expedition</title>
+<title>Leanders Lern-Expedition</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Fredoka:wght@500;600&display=swap">
 <style>
@@ -112,6 +112,23 @@ table.list td{padding:7px 4px;border-bottom:1px solid var(--line)}
 table.list tr:last-child td{border:0}
 table.list td:first-child{font-weight:700}
 .link{background:none;border:0;padding:6px 0;color:var(--muted);font-weight:400;text-decoration:underline;font-size:14px}
+/* Fächer-Reiter + Deutsch */
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:5px}
+.tabs button{border:0;background:transparent;padding:11px 8px;font-size:15px;border-radius:12px}
+.tabs button.on{background:var(--red);color:#fff}
+.dq{text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
+.dshow{padding:8px 0}
+.bigword{font-family:var(--f-display);font-size:40px;font-weight:600;letter-spacing:.02em}
+.sentence{font-size:22px;line-height:1.5}
+.gap{display:inline-block;min-width:1.3em;border-bottom:3px solid var(--red);color:var(--red);margin:0 2px;text-align:center}
+.gap.wide{min-width:3.5em}
+.opts.three{grid-template-columns:1fr 1fr 1fr}
+.opts.three button{font-size:24px;min-height:64px}
+.hear{background:var(--sun);border-color:var(--sun);color:#1D332E;font-size:18px}
+.rule{display:flex;gap:14px;align-items:flex-start}
+.rule .rn{flex:none;width:52px;height:52px;border-radius:14px;background:var(--red);color:#fff;display:grid;place-items:center;font-family:var(--f-display);font-size:24px;font-weight:600}
+.rule h3,.card h3{font-size:19px;margin-bottom:4px}
+.rule .ex{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px}
 </style>
 </head><body>
 
@@ -189,7 +206,12 @@ function count(obj,list){return list.filter(function(x){return obj[x];}).length;
 var SN=STATES.map(function(s){return s.n;}),CN=STATES.map(function(s){return s.c;}),NN=NBS.map(function(n){return n.n;});
 function home(){
   app.textContent="";
-  app.appendChild(h("div",{"class":"top"},[h("div",{"class":"flag"}),h("div",null,[h("h1",{text:"Leanders Österreich-Expedition"}),h("div",{"class":"sub",text:"9 Bundesländer · 9 Hauptstädte · 8 Nachbarländer"})])]));
+  app.appendChild(h("div",{"class":"top"},[h("div",{"class":"flag"}),h("div",null,[h("h1",{text:"Leanders Lern-Expedition"}),h("div",{"class":"sub",text:"Politische Bildung · Deutsch"})])]));
+  var tabs=h("div",{"class":"tabs",role:"tablist"});
+  [["pb","🗺️ Politische Bildung"],["de","✍️ Deutsch: s · ss · ß"]].forEach(function(t){
+    tabs.appendChild(h("button",{role:"tab","aria-selected":String((S.tab||"pb")===t[0]),"class":(S.tab||"pb")===t[0]?"on":"",text:t[1],onclick:function(){S.tab=t[0];save();home();}}));});
+  app.appendChild(tabs);
+  if(S.tab==="de"){deHome();window.scrollTo(0,0);return;}
   var mb=h("div",{"class":"card mapbox"});var ref=makeMap({labels:true,nbLabels:true,caps:true});mb.appendChild(ref.svg);app.appendChild(mb);
   var a=count(S.st,SN),b=count(S.cap,SN),c=count(S.nb,NN),d=count(S.w,SN);
   var total=a+b+c+d,max=9+9+8+9;
@@ -364,6 +386,129 @@ function cheat(){window.scrollTo(0,0);
   app.appendChild(h("div",{"class":"card"},[h("h2",{text:"Die 8 Nachbarländer",style:"font-size:20px;margin-bottom:6px"}),n,
     h("div",{"class":"small muted",style:"margin-top:8px",text:"Im Uhrzeigersinn von oben: Deutschland, Tschechien, Slowakei, Ungarn, Slowenien, Italien, Schweiz, Liechtenstein."})]));
   app.appendChild(h("div",{style:"text-align:center"},[h("button",{"class":"link",text:"Alle Sterne löschen",onclick:function(){if(confirm("Wirklich alle Sterne löschen?")){S={st:{},cap:{},nb:{},w:{},best:null,tests:0};save();home();}}})]));
+}
+
+/* ================= DEUTSCH: s, ss oder ß ================= */
+S.ss=S.ss||{};
+// [Wort mit [Lücke], Verlängerung, Satz mit ~]
+var W=[
+ ["Wa[ss]er","","Ich trinke ein Glas ~."],["Flu[ss]","die Flüsse","Die Donau ist ein großer ~."],["Schlo[ss]","die Schlösser","Der König wohnt in einem ~."],
+ ["Ku[ss]","die Küsse","Mama gibt mir einen ~."],["e[ss]en","","Wir ~ heute Knödel."],["Me[ss]er","","Schneide das Brot mit dem ~."],
+ ["Ta[ss]e","","Opa trinkt eine ~ Kaffee."],["Kla[ss]e","","In meiner ~ sind 22 Kinder."],["Nu[ss]","die Nüsse","Das Eichhörnchen sucht eine ~."],
+ ["Schlü[ss]el","","Ich habe meinen ~ verloren."],["Ki[ss]en","","Mein ~ ist schön weich."],["wi[ss]en","","Ich will alles ~."],
+ ["na[ss]","nasser","Nach dem Regen ist die Wiese ~."],["be[ss]er","","Heute geht es mir schon ~."],["Schü[ss]el","","Der Hund frisst aus seiner ~."],
+ ["Rü[ss]el","","Der Elefant hat einen langen ~."],["Se[ss]el","","Oma sitzt im ~."],["Pa[ss]","die Pässe","Für die Reise brauche ich einen ~."],
+ ["Stra[ß]e","","Wir spielen nicht auf der ~."],["Fu[ß]","die Füße","Ich habe mir den ~ verletzt."],["gro[ß]","größer","Der Elefant ist sehr ~."],
+ ["hei[ß]en","","Wie ~ deine Eltern?"],["bei[ß]en","","Der Hund wird nicht ~."],["Gru[ß]","die Grüße","Ich schicke dir einen lieben ~."],
+ ["So[ß]e","","Die Nudeln schmecken mit ~."],["sü[ß]","süßer","Die Schokolade ist ~."],["drau[ß]en","","Wir spielen ~ im Garten."],
+ ["flie[ß]en","","Viele Flüsse ~ in die Donau."],["gie[ß]en","","Ich muss die Blumen ~."],["wei[ß]","weißer","Der Schnee ist ~."],
+ ["Strau[ß]","die Sträuße","Mama bekommt einen ~ Blumen."],["Grö[ß]e","","Welche ~ hat dein Schuh?"],["hei[ß]","heißer","Im Sommer ist es sehr ~."],["grü[ß]en","","Ich soll dich von Oma ~."],
+ ["Hau[s]","die Häuser","Wir wohnen in einem kleinen ~."],["Mau[s]","die Mäuse","Die Katze jagt eine ~."],["Gla[s]","die Gläser","Das ~ ist zerbrochen."],
+ ["Gra[s]","die Gräser","Die Kühe fressen ~."],["Ho[s]e","","Meine ~ ist schmutzig."],["Na[s]e","","Der Clown hat eine rote ~."],
+ ["Ro[s]e","","Die ~ duftet gut."],["le[s]en","","Ich ~ gern Comics."],["Rei[s]e","","Die ~ nach Wien war toll."],
+ ["Prei[s]","die Preise","Er hat den ersten ~ gewonnen."],["Hal[s]","die Hälse","Die Giraffe hat einen langen ~."],["Gan[s]","die Gänse","Die ~ schnattert laut."],
+ ["Krei[s]","die Kreise","Wir stellen uns im ~ auf."],["Wie[s]e","","Auf der ~ wachsen Blumen."],["Rie[s]e","","Der ~ ist drei Meter groß."],["Gemü[s]e","","~ ist gesund."]
+].map(function(a){var m=a[0].match(/\[(.+?)\]/);return {ans:m[1],full:a[0].replace(/[\[\]]/g,""),gap:a[0].replace(/\[.+?\]/,"_"),v:a[1],sent:a[2]};});
+var DD=[
+ ["Ich weiß, ___ du heute Zeit hast.","dass"],["___ Buch liegt auf dem Tisch.","das"],["Mama sagt, ___ wir bald essen.","dass"],
+ ["Siehst du ___ rote Auto?","das"],["Das ist das Fahrrad, ___ ich mir wünsche.","das"],["Ich hoffe, ___ es morgen schneit.","dass"],
+ ["___ Pferd frisst Heu.","das"],["Er freut sich, ___ seine Oma kommt.","dass"],["Das Kind, ___ dort spielt, ist mein Bruder.","das"],
+ ["Weißt du, ___ Wien die Hauptstadt ist?","dass"],["Gib mir bitte ___ Glas!","das"],["Es ist schön, ___ du da bist.","dass"],
+ ["Wir wissen, ___ Österreich neun Bundesländer hat.","dass"],["Ich kenne ___ Lied schon.","das"],["Der Lehrer merkt, ___ alle müde sind.","dass"]
+];
+function why(w){var r=w.ans==="ss"?"Kurzer Selbstlaut vor dem s-Laut → ss.":w.ans==="ß"?"Langer Selbstlaut oder Zwielaut (au, ei, ie …) und scharfes s → ß.":"Weiches, summendes s → s.";
+  return r+(w.v?" Verlängern: "+w.v+".":"");}
+function gapHtml(w){return w.gap.replace("_","<span class=\"gap\">?</span>");}
+function sayDE(t){try{if(!window.speechSynthesis)return false;var u=new SpeechSynthesisUtterance(t);var vs=speechSynthesis.getVoices().filter(function(v){return /^de/i.test(v.lang);});
+  u.lang="de-AT";if(vs.length)u.voice=vs.filter(function(v){return v.lang==="de-AT";})[0]||vs[0];u.rate=.8;speechSynthesis.cancel();speechSynthesis.speak(u);return true;}catch(e){return false;}}
+function prioW(list,n){var a=shuffle(list.filter(function(w){return !S.ss[w.full];})),b=shuffle(list.filter(function(w){return S.ss[w.full];}));return a.concat(b).slice(0,n);}
+function dqWort(w){return {task:"s, ss oder ß?",html:"<span class=\"bigword\">"+gapHtml(w)+"</span>",opts:["s","ss","ß"],ans:w.ans,why:why(w),key:w.full,full:w.full};}
+function dqKurz(w){return {task:"Kurz oder lang vor dem s-Laut?",html:"<span class=\"bigword\">"+gapHtml(w)+"</span>",opts:["kurz → ss","lang → ß"],ans:w.ans==="ss"?"kurz → ss":"lang → ß",why:why(w)+" Das Wort heißt: "+w.full+".",full:w.full};}
+function dqSatz(w){return {task:"Welcher Buchstabe fehlt?",html:"<span class=\"sentence\">"+w.sent.replace("~","<b>"+gapHtml(w)+"</b>")+"</span>",opts:["s","ss","ß"],ans:w.ans,why:why(w),key:w.full,full:w.full};}
+function dqDiktat(w){return {task:"Hör gut zu und schreib das Wort.",diktat:w,html:"<span class=\"sentence\">"+w.sent.replace("~","<span class=\"gap wide\">…</span>")+"</span>",write:true,ans:w.full,why:why(w),key:w.full,full:w.full};}
+function dqDas(d){var start=d[0].indexOf("___")===0,cap=function(s){return start?s.charAt(0).toUpperCase()+s.slice(1):s;};
+  return {task:"das oder dass?",html:"<span class=\"sentence\">"+d[0].replace("___","<span class=\"gap wide\">?</span>")+"</span>",opts:[cap("das"),cap("dass")],ans:cap(d[1]),
+   why:d[1]==="das"?"Hier kannst du „dieses“ oder „welches“ einsetzen → das.":"„dieses“ oder „welches“ passt nicht → dass (steht meist nach einem Komma)."};}
+var DMODES={
+ wort:{t:"1 · s, ss oder ß?",n:10,f:function(){return prioW(W,10).map(dqWort);}},
+ kurz:{t:"2 · Kurz oder lang?",n:8,f:function(){return shuffle(W.filter(function(w){return w.ans!=="s";})).slice(0,8).map(dqKurz);}},
+ satz:{t:"3 · Lückensätze",n:8,f:function(){return prioW(W,8).map(dqSatz);}},
+ dikt:{t:"4 · Hör-Diktat",n:6,f:function(){return prioW(W,6).map(dqDiktat);}},
+ das:{t:"5 · das oder dass?",n:8,f:function(){return shuffle(DD).slice(0,8).map(dqDas);}},
+ test:{t:"Deutsch-Test",n:15,f:function(){var w=shuffle(W);return shuffle(w.slice(0,5).map(dqWort).concat(w.slice(5,9).map(dqSatz),w.slice(9,12).map(dqDiktat),shuffle(DD).slice(0,3).map(dqDas)));}}
+};
+function deHome(){
+  var got=W.filter(function(w){return S.ss[w.full];}).length;
+  app.appendChild(h("div",{"class":"card"},[h("div",{"class":"row",style:"justify-content:space-between"},[h("b",{text:"Deine Wörter-Sterne"}),h("span",{"class":"tnum",text:got+" / "+W.length+" ⭐"})]),
+    h("div",{"class":"meter"},[h("i",{style:"width:"+Math.round(got/W.length*100)+"%"})]),
+    S.deBest!=null?h("div",{"class":"small muted",style:"margin-top:6px",text:"Bester Deutsch-Test: "+S.deBest+" von 15"}):null]));
+  var st=h("div",{"class":"stations"});
+  function station(ico,title,sub,fn){return h("button",{"class":"station",onclick:fn},[h("span",{"class":"ico",text:ico}),h("span",null,[h("b",{text:title}),h("span",{"class":"s",text:sub})])]);}
+  st.appendChild(station("📋","Die Regeln","s, ss oder ß – so findest du es heraus",deRules));
+  st.appendChild(station("🔤","1 · s, ss oder ß?","Welcher Buchstabe fehlt im Wort?",function(){dPlay("wort");}));
+  st.appendChild(station("👂","2 · Kurz oder lang?","Der wichtigste Trick: hinhören!",function(){dPlay("kurz");}));
+  st.appendChild(station("🧩","3 · Lückensätze","Das fehlende s in ganzen Sätzen",function(){dPlay("satz");}));
+  st.appendChild(station("🔊","4 · Hör-Diktat","Wort anhören und selber schreiben",function(){dPlay("dikt");}));
+  st.appendChild(station("⚖️","5 · das oder dass?","Der Trick mit „dieses“",function(){dPlay("das");}));
+  st.appendChild(station("🏆","Deutsch-Test","15 Fragen gemischt – wie in der Schule",function(){dPlay("test");}));
+  app.appendChild(st);
+}
+function deRules(){
+  app.textContent="";window.scrollTo(0,0);app.appendChild(backBar("Die Regeln"));
+  function rule(n,title,txt,ex){return h("div",{"class":"card rule"},[h("div",{"class":"rn",text:n}),h("div",null,[h("h3",{text:title}),h("div",{text:txt}),h("div",{"class":"ex"},ex.map(function(e){return h("span",{"class":"chip",text:e});}))])]);}
+  app.appendChild(rule("ss","Kurz → ss","Ist der Selbstlaut (a, e, i, o, u, ä, ö, ü) davor kurz und schnell, schreibst du ss.",["Wasser","Fluss","Kuss","essen","Schlüssel"]));
+  app.appendChild(rule("ß","Lang → ß","Ist der Laut davor lang – oder ein Zwielaut (au, ei, eu, äu, ie) – und das s klingt scharf (zischt), schreibst du ß.",["Straße","Fuß","groß","heißen","draußen"]));
+  app.appendChild(rule("s","Summt → s","Klingt das s weich und summend wie eine Biene, schreibst du s.",["Hose","Nase","Rose","lesen","Wiese"]));
+  app.appendChild(h("div",{"class":"card"},[h("h3",{text:"🔍 Der Verlängerungs-Trick"}),h("div",{text:"Steht das s am Wortende, hörst du es schlecht. Mach das Wort länger – dann hörst du es:"}),
+    h("table",{"class":"list",style:"margin-top:6px"},[["Haus","Häuser","summt → s"],["Fuß","Füße","lang + scharf → ß"],["Fluss","Flüsse","kurz → ss"],["groß","größer","lang + scharf → ß"],["Gras","Gräser","summt → s"]].map(function(r){return h("tr",null,[h("td",{text:r[0]+" → "+r[1]}),h("td",{text:r[2]})]);}))]));
+  app.appendChild(h("div",{"class":"card"},[h("h3",{text:"⚖️ das oder dass?"}),h("div",{html:"Kannst du <b>„dieses“</b> oder <b>„welches“</b> einsetzen? → <b>das</b><br>Das Buch (dieses Buch) ist spannend.<br><br>Geht das nicht? → <b>dass</b> (meist nach einem Komma)<br>Ich weiß, dass du kommst."})]));
+}
+function dPlay(mode){
+  var m=DMODES[mode],qs=m.f(),i=0,right=0,total=qs.length,isTest=mode==="test",wrongs=[];
+  function show(){
+    var q=qs[i];window.scrollTo(0,0);app.textContent="";
+    app.appendChild(h("div",{"class":"row",style:"justify-content:space-between"},[h("button",{"class":"link",style:"font-size:16px",text:"← Zurück",onclick:home}),h("b",{text:m.t}),h("span",{"class":"small muted tnum",text:(i+1)+"/"+qs.length})]));
+    app.appendChild(h("div",{"class":"qbar"},[h("i",{style:"width:"+Math.round(i/qs.length*100)+"%"})]));
+    var c=h("div",{"class":"card dq"},[h("div",{"class":"tip",text:q.task}),h("div",{"class":"dshow",html:q.html})]);
+    app.appendChild(c);
+    var area=h("div",{style:"display:flex;flex-direction:column;gap:10px"});app.appendChild(area);
+    var fb=h("div");app.appendChild(fb);var locked=false;
+    if(q.diktat){var hear=h("button",{"class":"hear",text:"🔊 Anhören",onclick:function(){if(!sayDE(q.diktat.full))hear.textContent="Ton geht hier nicht – lies den Satz";}});c.appendChild(hear);setTimeout(function(){sayDE(q.diktat.full);},250);}
+    if(q.opts){var box=h("div",{"class":"opts"+(q.opts.length===3?" three":"")});
+      q.opts.forEach(function(o){var b=h("button",{text:o,onclick:function(){if(locked)return;var ok=o===q.ans;b.classList.add(ok?"ok":"bad");if(!ok)[].forEach.call(box.children,function(x){if(x.textContent===q.ans)x.classList.add("ok");});answer(ok,o);}});box.appendChild(b);});
+      area.appendChild(box);}
+    if(q.write){var inp=h("input",{"class":"answer",type:"text",autocomplete:"off",autocapitalize:"off",spellcheck:"false",placeholder:"Wort schreiben"});
+      var go=h("button",{"class":"btn-main",text:"Prüfen",onclick:function(){if(locked)return;var v=inp.value.trim();if(!v){inp.focus();return;}var ok=v===q.ans,note="";
+        if(!ok&&v.toLowerCase()===q.ans.toLowerCase()){ok=true;note=/^[A-ZÄÖÜ]/.test(q.ans)?"Achtung: "+q.ans+" schreibt man groß!":"Achtung: "+q.ans+" schreibt man klein!";}
+        inp.classList.add(ok?"ok":"bad");answer(ok,v,note);}});
+      inp.addEventListener("keydown",function(e){if(e.key==="Enter")go.click();});area.appendChild(inp);area.appendChild(go);}
+    function answer(ok,given,note){
+      locked=true;if(ok){right++;if(q.key){S.ss[q.key]=1;save();}}else wrongs.push(q);
+      var box=h("div",{"class":"fb "+(ok?"ok":"bad")},[h("b",{text:ok?"✓ "+PRAISE[Math.floor(Math.random()*PRAISE.length)]:"Fast! Richtig: "+(q.full&&!q.write?q.full:q.ans)}),
+        note?h("div",{"class":"small",text:note}):null,(!ok&&q.write)?h("div",{"class":"small",text:"Du hast geschrieben: „"+given+"“"}):null,h("div",{"class":"small",text:"💡 "+q.why})]);
+      fb.appendChild(box);
+      if(!ok&&!isTest)qs.push(q);
+      var nx=h("button",{"class":"btn-main",style:"margin-top:10px",text:i+1<qs.length?"Weiter →":"Fertig",onclick:function(){i++;i<qs.length?show():end();}});
+      fb.appendChild(nx);setTimeout(function(){fb.scrollIntoView({behavior:"smooth",block:"nearest"});},30);
+    }
+  }
+  function end(){
+    window.scrollTo(0,0);app.textContent="";app.appendChild(backBar(m.t));
+    var r=h("div",{"class":"card result"});
+    if(isTest){if(S.deBest==null||right>S.deBest)S.deBest=right;save();var lv=right>=13?"g":right>=9?"y":"r";
+      r.appendChild(h("div",{"class":"big tnum",text:right+" / "+total}));
+      r.appendChild(h("div",{"class":"ampel"},[h("i",{"class":"r"+(lv==="r"?" on":"")}),h("i",{"class":"y"+(lv==="y"?" on":"")}),h("i",{"class":"g"+(lv==="g"?" on":"")})]));
+      r.appendChild(h("div",{text:lv==="g"?"Super – du bist bereit für den Test! 🎉":lv==="y"?"Schon richtig gut! Noch ein bisschen üben.":"Lies nochmal die Regeln und übe die Stationen 1–3."}));
+      if(right===total)r.appendChild(h("span",{"class":"stamp",text:"s-Profi"}));
+      if(wrongs.length){var t=h("table",{"class":"list"});wrongs.forEach(function(q){t.appendChild(h("tr",null,[h("td",{text:q.full||q.html.replace(/<[^>]+>/g,"")}),h("td",{text:q.ans})]));});
+        r.appendChild(h("div",{style:"width:100%;text-align:left"},[h("b",{text:"Das schauen wir uns nochmal an:"}),t]));}
+    }else{r.appendChild(h("div",{"class":"big",text:"⭐"}));r.appendChild(h("h2",{text:"Runde geschafft!"}));
+      r.appendChild(h("div",{"class":"tnum",text:W.filter(function(w){return S.ss[w.full];}).length+" von "+W.length+" Wörtern gesammelt"}));}
+    app.appendChild(r);
+    app.appendChild(h("button",{"class":"btn-main",text:isTest?"Nochmal testen":"Noch eine Runde",onclick:function(){dPlay(mode);}}));
+    app.appendChild(h("button",{text:"Zur Übersicht",onclick:home}));
+  }
+  show();
 }
 
 home();
