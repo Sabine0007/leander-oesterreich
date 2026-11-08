@@ -112,7 +112,13 @@ table.list td{padding:7px 4px;border-bottom:1px solid var(--line)}
 table.list tr:last-child td{border:0}
 table.list td:first-child{font-weight:700}
 .link{background:none;border:0;padding:6px 0;color:var(--muted);font-weight:400;text-decoration:underline;font-size:14px}
-/* Fächer-Reiter + Deutsch */
+/* Fächer-Auswahl + Deutsch */
+.pick-q{font-family:var(--f-display);font-size:24px;font-weight:600;text-align:center;margin-top:8px}
+.picker{display:grid;gap:14px}
+.pick{display:flex;flex-direction:column;align-items:center;gap:6px;padding:26px 18px;background:var(--card);border-radius:20px;text-align:center}
+.pick-ico{font-size:52px;line-height:1}
+.pick b{font-family:var(--f-display);font-size:26px;font-weight:600}
+.pick .s{font-size:15px;color:var(--muted);font-weight:400}
 .tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:5px}
 .tabs button{border:0;background:transparent;padding:11px 8px;font-size:15px;border-radius:12px}
 .tabs button.on{background:var(--red);color:#fff}
@@ -204,14 +210,19 @@ function setCls(el,cls){if(!el)return;el.classList.remove("is-hi","is-ok","is-ba
 /* ---------- Startseite ---------- */
 function count(obj,list){return list.filter(function(x){return obj[x];}).length;}
 var SN=STATES.map(function(s){return s.n;}),CN=STATES.map(function(s){return s.c;}),NN=NBS.map(function(n){return n.n;});
+var FACH=null;
 function home(){
   app.textContent="";
   app.appendChild(h("div",{"class":"top"},[h("div",{"class":"flag"}),h("div",null,[h("h1",{text:"Leanders Lern-Expedition"}),h("div",{"class":"sub",text:"Politische Bildung · Deutsch"})])]));
-  var tabs=h("div",{"class":"tabs",role:"tablist"});
-  [["pb","🗺️ Politische Bildung"],["de","✍️ Deutsch: s · ss · ß"]].forEach(function(t){
-    tabs.appendChild(h("button",{role:"tab","aria-selected":String((S.tab||"pb")===t[0]),"class":(S.tab||"pb")===t[0]?"on":"",text:t[1],onclick:function(){S.tab=t[0];save();home();}}));});
-  app.appendChild(tabs);
-  if(S.tab==="de"){deHome();window.scrollTo(0,0);return;}
+  if(!FACH){
+    app.appendChild(h("div",{"class":"pick-q",text:"Was willst du heute üben?"}));
+    var g=h("div",{"class":"picker"});
+    [["pb","🗺️","Politische Bildung","Bundesländer · Hauptstädte · Nachbarländer"],["de","✍️","Deutsch","s, ss oder ß · das oder dass"]].forEach(function(f){
+      g.appendChild(h("button",{"class":"pick",onclick:function(){FACH=f[0];home();}},[h("span",{"class":"pick-ico",text:f[1]}),h("b",{text:f[2]}),h("span",{"class":"s",text:f[3]})]));});
+    app.appendChild(g);window.scrollTo(0,0);return;
+  }
+  app.appendChild(h("div",{"class":"row",style:"justify-content:space-between"},[h("button",{"class":"link",style:"font-size:16px",text:"← Fach wechseln",onclick:function(){FACH=null;home();}}),h("b",{text:FACH==="de"?"✍️ Deutsch":"🗺️ Politische Bildung"}),h("span")]));
+  if(FACH==="de"){deHome();window.scrollTo(0,0);return;}
   var mb=h("div",{"class":"card mapbox"});var ref=makeMap({labels:true,nbLabels:true,caps:true});mb.appendChild(ref.svg);app.appendChild(mb);
   var a=count(S.st,SN),b=count(S.cap,SN),c=count(S.nb,NN),d=count(S.w,SN);
   var total=a+b+c+d,max=9+9+8+9;
